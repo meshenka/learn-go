@@ -5,10 +5,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
 const message = "Hello Wold!"
+
+var (
+	// MlgCertFile unused yet
+	MlgCertFile = os.Getenv("MLG_CERT_FILE")
+	// MlgKeyFile unused yet
+	MlgKeyFile = os.Getenv("MLG_KEY_FILE")
+	// MlgServiceAddr service address,could be :8080
+	MlgServiceAddr = os.Getenv("MLG_SERVICE_ADDR")
+)
 
 func main() {
 	fmt.Println(message)
@@ -21,16 +31,17 @@ func main() {
 		w.Write([]byte(message))
 	})
 
-	srv := NewServer(mux)
+	srv := NewServer(mux, MlgServiceAddr)
 
-	err := srv.ListenAndServe()
+	err := srv.ListenAndServeTLS(MlgCertFile, MlgKeyFile)
 
 	if err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
 
-func NewServer(mux *http.ServeMux) *http.Server {
+// NewServer create the server
+func NewServer(mux *http.ServeMux, serverAddress string) *http.Server {
 	//https://blog.cloudflare.com/exposing-go-on-the-internet/
 	tlsConfig := &tls.Config{
 		PreferServerCipherSuites: true,
@@ -55,7 +66,7 @@ func NewServer(mux *http.ServeMux) *http.Server {
 	}
 
 	srv := &http.Server{
-		Addr:         ":8080",
+		Addr:         serverAddress,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
