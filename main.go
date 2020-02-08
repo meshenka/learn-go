@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,17 +19,21 @@ var (
 )
 
 func main() {
-	fmt.Println("Starting")
+	logger := log.New(os.Stdout, "MLG", log.LstdFlags|log.Lshortfile)
+	logger.Println("Starting")
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", homepage.HomeHandler)
+	//This is Dependencies injection in Go
+	h := homepage.NewHandlers(logger)
+
+	mux.HandleFunc("/", h.Home)
 
 	srv := server.New(mux, MlgServiceAddr)
 
 	err := srv.ListenAndServeTLS(MlgCertFile, MlgKeyFile)
 
 	if err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		logger.Fatalf("Server failed to start: %v", err)
 	}
 }
