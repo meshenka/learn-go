@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	homepage "./homepage"
 	server "./server"
 )
-
-const message = "Hello Wold!"
 
 var (
 	// MlgCertFile unused yet
@@ -21,15 +20,11 @@ var (
 )
 
 func main() {
-	fmt.Println(message)
+	fmt.Println("Starting")
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(message))
-	})
+	mux.HandleFunc("/", homepage.HomeHandler)
 
 	srv := server.New(mux, MlgServiceAddr)
 
