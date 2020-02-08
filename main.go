@@ -21,6 +21,16 @@ func main() {
 		w.Write([]byte(message))
 	})
 
+	srv := NewServer(mux)
+
+	err := srv.ListenAndServe()
+
+	if err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
+}
+
+func NewServer(mux *http.ServeMux) *http.Server {
 	//https://blog.cloudflare.com/exposing-go-on-the-internet/
 	tlsConfig := &tls.Config{
 		PreferServerCipherSuites: true,
@@ -53,9 +63,5 @@ func main() {
 		Handler:      mux,
 	}
 
-	err := srv.ListenAndServe()
-
-	if err != nil {
-		log.Fatalf("Server failed to start: %v", err)
-	}
+	return srv
 }
