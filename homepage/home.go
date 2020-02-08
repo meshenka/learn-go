@@ -3,6 +3,7 @@ package homepage
 import (
 	"log"
 	"net/http"
+	"time"
 )
 
 const message = "Hello Wold!"
@@ -25,4 +26,18 @@ func NewHandlers(logger *log.Logger) *Handlers {
 	return &Handlers{
 		logger: logger,
 	}
+}
+
+// LogCallsDurationMiddleware as a MiddleWare in go do h.Logger(h.Home)
+func (h *Handlers) LogCallsDurationMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
+		next(w, r)
+		h.logger.Printf("Request handled in %s\n", time.Now().Sub(startTime))
+	}
+}
+
+// SetupRoutes as a MiddleWare in go do h.Logger(h.Home)
+func (h *Handlers) SetupRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/", h.LogCallsDurationMiddleware(h.Home)) // enable the Logger middleware here
 }

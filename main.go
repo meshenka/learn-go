@@ -27,7 +27,7 @@ func main() {
 	//This is Dependencies injection in Go
 	h := homepage.NewHandlers(logger)
 
-	mux.HandleFunc("/", h.Home)
+	h.SetupRoutes(mux)
 
 	srv := server.New(mux, MlgServiceAddr)
 
